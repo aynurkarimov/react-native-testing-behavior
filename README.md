@@ -1,50 +1,15 @@
-# Welcome to your Expo app 👋
+# React-Native-Testing-Behavior
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A showcase of testing techniques that prioritize behavior over implementation details. By implementation details, means the concrete logic behind certain behaviors — things like props, state, refs, lifecycle methods, and specific renders. Testing close to implementation details is harmful and discouraged by best practices, [React Native](https://reactnative.dev/docs/testing-overview#testing-user-interactions), [React Testing Library](https://testing-library.com/docs/#what-you-should-avoid-with-testing-library), and [React Native Testing Library](https://callstack.github.io/react-native-testing-library/docs/start/intro#the-problem).
 
-## Get started
+## Tradeoffs
 
-1. Install dependencies
+### Not Everything is Tested
 
-   ```bash
-   npm install
-   ```
+This might seem like common sense, but it's worth emphasizing. A "test everything" mindset leads to redundant test cases that couple specs to a component's internals. This prevents easy refactoring and locks future solutions into a narrow tunnel dictated by these tests. Occasionally, such tests are still written, but to preserve flexibility, I mark them with a 🚨 emoji. If a test marked this way and breaks, it's a sign that it can be deleted or replaced with something lighter. At the end of the day, it's better to not have a test, than having one which is painful to maintain.
 
-2. Start the app
+### Adapters and Fakes
 
-   ```bash
-    npx expo start
-   ```
+Adapters are wrappers around third-party APIs and core components. They allow you to avoid directly mocking code you don't own by giving you a custom interface that you can fake or mock. For example, `LibraryBasedInput` adapter wraps a UI library under the hood and still testable.
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The main benefit of adapters is that they can be reused across a project and have a behavior-driven representation in tests. This means you can avoid relying on anti-patterns like `toHaveProp`. However, there's a tradeoff. Technically, you can write an adapter, fake it in the test environment, and pass all your tests without actually implementing the real functionality. Your tests will be green, but your app might crash in production. The good news is that such bugs are isolated to the adapter itself. Fixing it only requires updating one file: the adapter. Without the adapter, you'd have to fix every individual mock and test file.
